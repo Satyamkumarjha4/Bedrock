@@ -1,0 +1,35 @@
+{
+  "new_template": {
+    "name": "new_template",
+    "description": "A new template",
+    "use_case": "clinical_recommender",
+    "template_text": "Template text",
+    "model_provider": "anthropic",
+    "model_id": "anthropic.claude-3-sonnet-20240229-v1:0",
+    "max_tokens": 1000,
+    "temperature": 0.7,
+    "response_format": {
+      "field1": [],
+      "field2": "default"
+    },
+    "is_active": true
+  },
+  "food_analysis": {
+    "name": "food_analysis",
+    "description": "Analyze food image and estimate macronutrient percentages",
+    "use_case": "food_analyzer",
+    "template_text": "Analyze this food image and estimate macronutrient percentages. Image: ${image_data}",
+    "model_provider": "anthropic",
+    "model_id": "anthropic.claude-3-sonnet-20240229-v1:0",
+    "max_tokens": 512,
+    "temperature": 0.3,
+    "response_format": {
+      "carbohydrates": 0,
+      "proteins": 0,
+      "fats": 0,
+      "fibre": 0,
+      "calories": 0
+    },
+    "is_active": true
+  }
+}

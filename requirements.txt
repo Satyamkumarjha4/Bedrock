@@ -1,0 +1,4 @@
+boto3
+pydantic
+tenacity
+prometheus_client 
