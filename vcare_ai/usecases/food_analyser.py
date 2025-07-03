@@ -4,6 +4,24 @@ import json
 from vcare_ai.client import BedrockClient
 from vcare_ai.usecases.base import UseCase
 
+import re
+
+def extract_json_from_text(text: str) -> dict:
+    """
+    Extracts the first valid JSON object from a Claude-style response.
+    """
+    try:
+        return json.loads(text)  # Try direct parse
+    except json.JSONDecodeError:
+        match = re.search(r'\{[\s\S]*?\}', text)
+        if match:
+            try:
+                return json.loads(match.group())
+            except json.JSONDecodeError:
+                return {"error": "Failed to parse extracted JSON"}
+    return {"error": "No JSON found in response"}
+
+
 logger = logging.getLogger(__name__)
 
 class FoodAnalyserError(Exception):
@@ -32,13 +50,13 @@ class FoodAnalyser(UseCase):
         text = response.get('text', '')
 
         try:
-            parsed = json.loads(text)
+            parsed = extract_json_from_text(text)
             food_items = parsed.get("food_items", [])
             if isinstance(food_items, list) and food_items:
                 return food_items
             else:
                 logger.warning(f"Empty or invalid 'food_items': {parsed}")
-                return []  # Return empty list instead of raising error
+                return []
         except json.JSONDecodeError:
             logger.error(f"JSON parsing failed. Raw response: {text}")
             return []  # Gracefully handle partial/malformed responses
