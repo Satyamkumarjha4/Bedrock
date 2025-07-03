@@ -7,5 +7,5 @@ def encode_image(image_path):
         return base64.b64encode(image_file.read()).decode('utf-8')
 
 analyzer = FoodAnalyser()
-result = analyzer.run({"image_data": encode_image("/home/satyamkumarjha/Traning/Datasets/Day1/images/IMG-20250401-WA0011.jpg")})
+result = analyzer.run({"image_data": "https://www.plattershare.com/storage/2021/09/5b0e7647d2c64-1.jpg"})
 print(result)

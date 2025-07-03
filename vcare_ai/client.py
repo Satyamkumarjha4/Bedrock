@@ -11,6 +11,7 @@ from prometheus_client import CollectorRegistry, Counter, Histogram, Gauge
 from .config import config, ModelProvider, ConfigError
 from .utils.token_utils import estimate_tokens
 
+
 logger = logging.getLogger(__name__)
 
 # Create a module-level registry
@@ -103,36 +104,41 @@ class BedrockClient:
             logger.warning(f"Closing active stream {stream_id} during shutdown")
             self.active_streams.remove(stream_id)
     
-    def _get_cache_key(self, prompt: str) -> str:
+    def _get_cache_key(self, prompt: str, image_url: str = "") -> str:
         """Generate a cache key for a prompt"""
         # Include model and key parameters in the cache key
         cache_input = f"{prompt}|{self.config.model_id}|{self.config.temperature}|{self.config.max_tokens}"
         return hashlib.md5(cache_input.encode()).hexdigest()
     
-    def _format_prompt(self, prompt: str) -> Dict[str, Any]:
-        """
-        Format the prompt according to the model provider requirements
-        
-        Args:
-            prompt: The user's prompt text
-            
-        Returns:
-            Dictionary with formatted prompt for the specific model
-            
-        Raises:
-            BedrockRequestError: If formatting fails
-        """
+    def _format_prompt(self, prompt: str, image_url: str = "") -> Dict[str, Any]:
         try:
             if self.config.model_provider == ModelProvider.CLAUDE:
                 if "claude-3" in self.config.model_id:
-                    return {
-                        "messages": [
-                            {"role": "user", "content": prompt}
-                        ],
-                        "max_tokens": self.config.max_tokens,
-                        "temperature": self.config.temperature,
-                        "anthropic_version": "bedrock-2023-05-31"
-                    }
+                    if image_url:
+                        return {
+                            "messages": [{
+                                "role": "user",
+                                "content": [
+                                    {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": image_url}},
+                                    {"type": "text", "text": prompt}
+                                ]
+                            }],
+                            "max_tokens": self.config.max_tokens,
+                            "temperature": self.config.temperature,
+                            "anthropic_version": "bedrock-2023-05-31"
+                        }
+                    else:
+                        return {
+                            "messages": [{
+                                "role": "user",
+                                "content": [
+                                    {"type": "text", "text": prompt}
+                                ]
+                            }],
+                            "max_tokens": self.config.max_tokens,
+                            "temperature": self.config.temperature,
+                            "anthropic_version": "bedrock-2023-05-31"
+                        }
                 else:
                     return {
                         "prompt": f"\n\nHuman: {prompt}\n\nAssistant:",
@@ -140,31 +146,28 @@ class BedrockClient:
                         "temperature": self.config.temperature,
                         "stop_sequences": ["\n\nHuman:"]
                     }
+
             elif self.config.model_provider == ModelProvider.LLAMA:
                 return {
                     "prompt": prompt,
                     "max_gen_len": self.config.max_tokens,
                     "temperature": self.config.temperature
                 }
+
             elif self.config.model_provider == ModelProvider.MISTRAL:
                 return {
                     "prompt": prompt,
                     "max_tokens": self.config.max_tokens,
                     "temperature": self.config.temperature
                 }
+
             else:
                 raise BedrockRequestError(f"Unsupported provider: {self.config.model_provider}")
         except Exception as e:
             logger.error(f"Error formatting prompt: {str(e)}")
             raise BedrockRequestError(f"Failed to format prompt: {str(e)}")
 
-    @retry(
-        retry=retry_if_exception_type((boto3.exceptions.Boto3Error, BedrockRateLimitError)),
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
-        reraise=True
-    )
-    def invoke(self, prompt: str, use_cache: bool = True) -> Dict[str, Any]:
+    def invoke(self, prompt: str, use_cache: bool = True, image_url: str = "") -> Dict[str, Any]:
         """
         Invoke the model with a prompt
         
@@ -192,7 +195,7 @@ class BedrockClient:
                     return cached_response
             
             # Proceed with API call
-            body = self._format_prompt(prompt)
+            body = self._format_prompt(prompt, image_url)
             logger.debug(f"[{request_id}] Invoking model with prompt length: {len(prompt)}")
             
             # Track token usage (approximate)
@@ -259,7 +262,7 @@ class BedrockClient:
         finally:
             ACTIVE_REQUESTS.dec()
     
-    def invoke_stream(self, prompt: str) -> Iterator[Dict[str, Any]]:
+    def invoke_stream(self, prompt: str, image_url: str = "") -> Iterator[Dict[str, Any]]:
         """
         Stream responses from the model for a given prompt
         
@@ -384,4 +387,6 @@ class BedrockClient:
         # In a real implementation, you would use aiohttp or similar
         # for now, just call the sync version
         return self.invoke(prompt)
+
+
 

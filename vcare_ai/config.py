@@ -23,7 +23,7 @@ class ModelConfig:
             raise ValueError("MAX_TOKENS must be a valid integer")
             
         try:
-            self.temperature = float(os.getenv("TEMPERATURE", 0.5))
+            self.temperature = float(os.getenv("TEMPERATURE", 0))
         except ValueError:
             raise ValueError("TEMPERATURE must be a valid float")
         

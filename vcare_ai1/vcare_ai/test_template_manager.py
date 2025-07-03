@@ -18,7 +18,7 @@ def temp_template_file():
                 "model_provider": "anthropic",
                 "model_id": "anthropic.claude-3-sonnet-20240229-v1:0",
                 "max_tokens": 1000,
-                "temperature": 0.7,
+                "temperature": 0.1,
                 "response_format": {"prescriptions": [], "tests": [], "referrals": []},
                 "is_active": True
             }
