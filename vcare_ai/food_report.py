@@ -29,5 +29,5 @@ req_data = {
 }
 
 analyzer = FoodAnalyser()
-result = analyzer.run({"food_data": optimize_image_to_base64("https://j6e2i8c9.delivery.rocketcdn.me/wp-content/uploads/2016/01/Instant-rice-idli-recipe-3-1.jpg"), "req_data": req_data})
+result = analyzer.run({"food_data": optimize_image_to_base64("https://vegecravings.com/wp-content/uploads/2024/07/Dosa-Recipe-Step-By-Step-Instructions-scaled.jpg"), "req_data": req_data})
 print(result)
