@@ -62,12 +62,12 @@ class FoodAnalyser(UseCase):
 
         try:
             parsed = extract_json_from_text(text)
-            food_items = parsed.get("food_items", {})
-            if isinstance(food_items, dict) and food_items:
+            food_items = parsed.get("food_items", [])
+            if isinstance(food_items, list) and food_items:
                 return food_items
             else:
                 logger.warning(f"Empty or invalid 'food_items': {parsed}")
-                return {}
+                return []
         except json.JSONDecodeError:
             logger.error(f"JSON parsing failed. Raw response: {text}")
             return {}
