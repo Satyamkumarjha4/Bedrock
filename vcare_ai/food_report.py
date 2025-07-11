@@ -29,5 +29,5 @@ req_data = {
 }
 
 analyzer = FoodAnalyser()
-result = analyzer.run({"food_data": optimize_image_to_base64("https://vegecravings.com/wp-content/uploads/2024/07/Dosa-Recipe-Step-By-Step-Instructions-scaled.jpg"), "req_data": req_data})
+result = analyzer.run({"food_data": optimize_image_to_base64("https://images.unsplash.com/photo-1680993032090-1ef7ea9b51e5?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8aW5kaWFuJTIwdGhhbGl8ZW58MHx8MHx8fDA%3D"), "req_data": req_data})
 print(result)
