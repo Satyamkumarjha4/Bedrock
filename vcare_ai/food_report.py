@@ -5,6 +5,11 @@ from PIL import Image
 import requests
 from io import BytesIO
 import base64
+# Importing the DataBase
+from config import DB_CONFIG
+
+conn = psycopg2.connect(**DB_CONFIG)
+ 
 
 def optimize_image_to_base64(url: str, max_dim: int = 384) -> str:
     """Download, resize, and compress the image aggressively before base64 encoding."""

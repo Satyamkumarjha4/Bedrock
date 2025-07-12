@@ -39,3 +39,14 @@ class ModelConfig:
 
 config = ModelConfig()
 
+
+
+# Configurations for the DataBase
+
+DB_CONFIG = {
+    "host": "localhost",
+    "port": 5432,
+    "dbname": "vectordb",
+    "user": "postgres",
+    "password": "postgres"
+}
