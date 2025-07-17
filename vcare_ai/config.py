@@ -18,7 +18,7 @@ class ModelConfig:
         self.region = os.getenv("AWS_REGION", "ap-south-1")
         
         try:
-            self.max_tokens = int(os.getenv("MAX_TOKENS", 2048))
+            self.max_tokens = int(os.getenv("MAX_TOKENS", 8000))
         except ValueError:
             raise ValueError("MAX_TOKENS must be a valid integer")
             
