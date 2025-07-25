@@ -13,9 +13,11 @@ class ConfigError(Exception):
 
 class ModelConfig:
     def __init__(self):
-        self.model_provider = os.getenv("MODEL_PROVIDER", ModelProvider.CLAUDE)
-        self.model_id = os.getenv("MODEL_ID", "anthropic.claude-3-sonnet-20240229-v1:0")
-        self.region = os.getenv("AWS_REGION", "ap-south-1")
+        self.model_provider = os.getenv("MODEL_PROVIDER", ModelProvider.LLAMA)
+        self.model_id = os.getenv("MODEL_ID", "meta.llama3-2-90b-instruct-v1:0")
+        
+        # Change this line to a supported region
+        self.region = os.getenv("AWS_REGION", "us-east-1") 
         
         try:
             self.max_tokens = int(os.getenv("MAX_TOKENS", 8000))
@@ -23,7 +25,7 @@ class ModelConfig:
             raise ValueError("MAX_TOKENS must be a valid integer")
             
         try:
-            self.temperature = float(os.getenv("TEMPERATURE", 0))
+            self.temperature = float(os.getenv("TEMP", 0))
         except ValueError:
             raise ValueError("TEMPERATURE must be a valid float")
         
@@ -38,8 +40,6 @@ class ModelConfig:
             raise ConfigError("TEMPERATURE must be between 0 and 1")
 
 config = ModelConfig()
-
-
 
 # Configurations for the DataBase
 

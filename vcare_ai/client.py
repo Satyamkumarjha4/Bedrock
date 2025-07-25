@@ -148,11 +148,37 @@ class BedrockClient:
                     }
 
             elif self.config.model_provider == ModelProvider.LLAMA:
-                return {
-                    "prompt": prompt,
-                    "max_gen_len": self.config.max_tokens,
-                    "temperature": self.config.temperature
-                }
+                if "llama3-2" in self.config.model_id.lower():  # e.g. "llama-3.2-vision"
+                    if image_url:
+                        return {
+                            "messages": [{
+                                "role": "user",
+                                "content": [
+                                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_url}"}},
+                                    {"type": "text", "text": prompt}
+                                ]
+                            }],
+                            "max_tokens": self.config.max_tokens,
+                            "temperature": self.config.temperature,
+                            "top_p": 0.9  # optional, adjust if needed
+                        }
+                    else:
+                        return {
+                            "messages": [{
+                                "role": "user",
+                                "content": [{"type": "text", "text": prompt}]
+                            }],
+                            "max_tokens": self.config.max_tokens,
+                            "temperature": self.config.temperature,
+                            "top_p": 0.9
+                        }
+                else:
+                    return {
+                        "prompt": prompt,
+                        "max_gen_len": self.config.max_tokens,
+                        "temperature": self.config.temperature
+                    }
+
 
             elif self.config.model_provider == ModelProvider.MISTRAL:
                 return {

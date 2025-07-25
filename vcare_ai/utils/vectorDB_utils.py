@@ -230,6 +230,7 @@ class VectorDBUtils:
             )
             self.conn.commit()
 
+
     def ingest_final_dataset(self, csv_path: str = "Data/final_food_dataset.csv"):
         """Ingest recipe dataset with proper embeddings"""
         df = pd.read_csv(csv_path)

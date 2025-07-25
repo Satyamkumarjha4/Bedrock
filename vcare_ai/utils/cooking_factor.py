@@ -18,4 +18,4 @@ def get_cooking_factor(dish_name: str) -> dict:
         return COOKING_FACTORS['grilling']
     if 'steam' in dish_lower:
         return COOKING_FACTORS['steaming']
-    return COOKING_FACTORS['boiling']  # Default
+    return COOKING_FACTORS['boiling'] 
