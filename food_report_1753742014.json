@@ -1,0 +1,56 @@
+{
+  "dish_name": "South Indian Thali",
+  "confidence": 90,
+  "ingredients": [
+    [
+      "parotta",
+      100.0
+    ],
+    [
+      "white rice",
+      100.0
+    ],
+    [
+      "vegetable curry",
+      100.0
+    ],
+    [
+      "chutney",
+      100.0
+    ],
+    [
+      "tomatoes",
+      100.0
+    ],
+    [
+      "chili powder",
+      100.0
+    ],
+    [
+      "rasam",
+      100.0
+    ]
+  ],
+  "current_nutrients": {
+    "carbohydrates": 105.0,
+    "proteins": 35.0,
+    "fats": 21.0,
+    "fibre": 14.0,
+    "calories": 560.0
+  },
+  "req_nutrients": {
+    "carbohydrates": 200,
+    "proteins": 60,
+    "fats": 20,
+    "fibre": 30,
+    "calories": 1200
+  },
+  "deviation": {
+    "carbohydrates": -95.0,
+    "proteins": -25.0,
+    "fats": 1.0,
+    "fibre": -16.0,
+    "calories": -640.0
+  },
+  "used_fallback": []
+}

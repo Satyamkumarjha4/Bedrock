@@ -6,6 +6,7 @@ class ModelProvider(str, Enum):
     CLAUDE = "anthropic"
     LLAMA = "meta"
     MISTRAL = "mistral"
+    AMAZON = "amazon"
 
 class ConfigError(Exception):
     """Base exception for configuration errors"""
@@ -13,9 +14,9 @@ class ConfigError(Exception):
 
 class ModelConfig:
     def __init__(self):
-        self.model_provider = os.getenv("MODEL_PROVIDER", ModelProvider.LLAMA)
-        self.model_id = os.getenv("MODEL_ID", "meta.llama3-2-90b-instruct-v1:0")
-        
+        self.model_provider = os.getenv("MODEL_PROVIDER", ModelProvider.AMAZON)
+        self.model_id = os.getenv("MODEL_ID", "amazon.nova-lite-v1:0")
+
         # Change this line to a supported region
         self.region = os.getenv("AWS_REGION", "us-east-1") 
         

@@ -1,0 +1,52 @@
+{
+  "dish_name": "Vegetable Curry with Rice and Naan",
+  "confidence": 80,
+  "ingredients": [
+    [
+      "rice",
+      100.0
+    ],
+    [
+      "vegetables",
+      100.0
+    ],
+    [
+      "naan",
+      100.0
+    ],
+    [
+      "tomatoes",
+      100.0
+    ],
+    [
+      "curd",
+      100.0
+    ],
+    [
+      "turmeric powder",
+      100.0
+    ]
+  ],
+  "current_nutrients": {
+    "carbohydrates": 76.0,
+    "proteins": 31.4,
+    "fats": 23.3,
+    "fibre": 16.5,
+    "calories": 410.0
+  },
+  "req_nutrients": {
+    "carbohydrates": 200,
+    "proteins": 60,
+    "fats": 20,
+    "fibre": 30,
+    "calories": 1200
+  },
+  "deviation": {
+    "carbohydrates": -124.0,
+    "proteins": -28.6,
+    "fats": 3.3000000000000007,
+    "fibre": -13.5,
+    "calories": -790.0
+  },
+  "used_fallback": []
+}

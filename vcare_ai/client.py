@@ -147,6 +147,46 @@ class BedrockClient:
                         "stop_sequences": ["\n\nHuman:"]
                     }
 
+            elif self.config.model_provider == ModelProvider.AMAZON:
+                if "amazon.nova" in self.config.model_id.lower():
+                    if image_url:
+                        return {
+                            "messages": [{
+                                "role": "user",
+                                "content": [
+                                    {
+                                        "image": {
+                                            "format": "jpeg",
+                                            "source": {
+                                                "bytes": image_url
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "text": prompt
+                                    }
+                                ]
+                            }],
+                            "inferenceConfig": {
+                                "maxTokens": self.config.max_tokens,
+                                "temperature": self.config.temperature
+                            }
+                        }
+                    else:
+                        return {
+                            "messages": [{
+                                "role": "user",
+                                "content": [{"text": prompt}]
+                            }],
+                            "inferenceConfig": {
+                                "maxTokens": self.config.max_tokens,
+                                "temperature": self.config.temperature
+                            }
+                        }
+
+
+
+
             elif self.config.model_provider == ModelProvider.LLAMA:
                 if "llama3-2" in self.config.model_id.lower():  # e.g. "llama-3.2-vision"
                     if image_url:
@@ -390,13 +430,53 @@ class BedrockClient:
                         return {"text": ""}
                 else:
                     return {"text": response.get("completion", "")}
+                    
+            elif self.config.model_provider == ModelProvider.AMAZON:
+                # Handle Amazon Nova response
+                if "amazon.nova" in self.config.model_id.lower():
+                    # Debug logging to understand the response structure
+                    logger.debug(f"Nova raw response: {json.dumps(response, indent=2)}")
+                    
+                    # Try multiple possible response structures for Nova
+                    # Structure 1: {"output": {"message": {"content": [{"text": "..."}]}}}
+                    if "output" in response:
+                        output = response["output"]
+                        if "message" in output:
+                            message = output["message"]
+                            if "content" in message and isinstance(message["content"], list):
+                                for item in message["content"]:
+                                    if "text" in item:
+                                        return {"text": item["text"]}
+                            elif isinstance(message.get("content"), str):
+                                return {"text": message["content"]}
+                        elif isinstance(output, str):
+                            return {"text": output}
+                            
+                    # Structure 2: Direct text in response
+                    if "text" in response:
+                        return {"text": response["text"]}
+                        
+                    # Structure 3: Content array at root level
+                    if "content" in response and isinstance(response["content"], list):
+                        for item in response["content"]:
+                            if "text" in item:
+                                return {"text": item["text"]}
+                                
+                    # Fallback: convert entire response to string
+                    logger.warning(f"Unknown Nova response structure, using fallback: {response}")
+                    return {"text": str(response)}
+                else:
+                    return {"text": response.get("completion", "")}
+                    
             elif self.config.model_provider == ModelProvider.LLAMA:
                 return {"text": response.get("generation", "")}
             elif self.config.model_provider == ModelProvider.MISTRAL:
                 return {"text": response.get("outputs", [{}])[0].get("text", "")}
             return response
+            
         except Exception as e:
             logger.error(f"Error parsing response: {str(e)}")
+            logger.error(f"Response that caused error: {response}")
             raise BedrockResponseError(f"Failed to parse response: {str(e)}")
     
     async def invoke_async(self, prompt: str) -> Dict[str, Any]:

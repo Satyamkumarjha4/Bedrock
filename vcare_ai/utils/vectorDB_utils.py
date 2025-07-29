@@ -156,17 +156,21 @@ class VectorDBUtils:
     def search_similar(self, query: str, k: int = 3, threshold: float = 0.4) -> List[Dict]:
         """Enhanced similarity search with threshold"""
         query_embed = self.generate_embeddings(query)
+        # Convert to Python list and string representation
+        embed_list = query_embed.tolist()
+        embed_str = "[" + ",".join(map(str, embed_list)) + "]"
+        
         with self.conn.cursor() as cur:
             cur.execute("""
                 SELECT 
                     food_name,
                     nutrients,
-                    1 - (embedding <=> %s) AS similarity
+                    1 - (embedding <=> %s::vector) AS similarity
                 FROM food_nutrients
-                WHERE 1 - (embedding <=> %s) > %s
+                WHERE 1 - (embedding <=> %s::vector) > %s
                 ORDER BY similarity DESC
                 LIMIT %s
-            """, (query_embed.tolist(), query_embed.tolist(), threshold, k))
+            """, (embed_str, embed_str, threshold, k))
             return [
                 {
                     'food_name': row[0],
@@ -187,7 +191,9 @@ class VectorDBUtils:
                     }
         except Exception as e:
             logger.error(f"Error retrieving {ingredient}: {str(e)}")
-            self.conn.rollback()  # Reset transaction state
+            self.conn.rollback()
+            # Reset connection to recover from aborted transaction
+            self.conn = psycopg2.connect(**DB_CONFIG)
         return None
 
     def get_recipe(self, dish_name: str) -> Optional[Dict]:

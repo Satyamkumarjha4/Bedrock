@@ -62,9 +62,6 @@ class NutrientRequirements:
     @staticmethod
     def load_from_db(user_id: str = None) -> dict:
         """Load personalized requirements from DB"""
-        if not user_id:
-            return NutrientRequirements.load_defaults()
-            
         try:
             conn = psycopg2.connect(**DB_CONFIG)
             with conn.cursor() as cur:
@@ -80,22 +77,6 @@ class NutrientRequirements:
                 if not table_exists:
                     return NutrientRequirements.load_defaults()
                     
-                cur.execute(
-                    "SELECT nutrients FROM user_profiles WHERE user_id = %s",
-                    (user_id,))
-                if result := cur.fetchone():
-                    return json.loads(result[0])
-            return NutrientRequirements.load_defaults()
-        except Exception as e:
-            logger.error(f"Failed to load nutrients from DB: {str(e)}")
-            return NutrientRequirements.load_defaults()
-    
-    @staticmethod
-    def load_from_db(user_id: str = None) -> dict:
-        """Load personalized requirements from DB"""
-        try:
-            conn = psycopg2.connect(**DB_CONFIG)
-            with conn.cursor() as cur:
                 cur.execute(
                     "SELECT nutrients FROM user_profiles WHERE user_id = %s",
                     (user_id,))
@@ -153,13 +134,11 @@ class ReportGenerator:
             for nutrient, diff in result["deviation"].items():
                 status = "Above" if diff > 0 else "Below"
                 print(f"- {nutrient.capitalize()}: {abs(diff):.1f}g {status} recommendation")
-
-        if "recommendation" in result:
-            print(f"\nRecommendation: {result['recommendation']}")
+        print("\n==============================")
 
 def main():
     # Configuration
-    IMAGE_URL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyrQe_3y27UhwkxGhuh7Sngv-rh2-jHYJBKg&s"
+    IMAGE_URL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReT0U3QcSDqtjCZrzBjP7cvzrRvCEdMgXu1w&s"
     USER_ID = None  # Replace with actual user ID for personalized requirements
     
     # Process image
