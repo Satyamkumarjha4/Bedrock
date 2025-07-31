@@ -26,60 +26,60 @@ class VectorDBUtils:
             self.conn.close()
             raise RuntimeError(f"Failed to initialize VectorDBUtils: {str(e)}")
 
-    def _create_extension(self):
-        """Create required PostgreSQL extensions"""
-        with self.conn.cursor() as cur:
-            extensions = ['vector', 'pg_trgm']
-            for ext in extensions:
-                try:
-                    cur.execute(f"CREATE EXTENSION IF NOT EXISTS {ext};")
-                    self.conn.commit()
-                except Exception as e:
-                    logger.error(f"Error creating extension {ext}: {e}")
-                    self.conn.rollback()
-                    raise
+    # def _create_extension(self):
+    #     """Create required PostgreSQL extensions"""
+    #     with self.conn.cursor() as cur:
+    #         extensions = ['vector', 'pg_trgm']
+    #         for ext in extensions:
+    #             try:
+    #                 cur.execute(f"CREATE EXTENSION IF NOT EXISTS {ext};")
+    #                 self.conn.commit()
+    #             except Exception as e:
+    #                 logger.error(f"Error creating extension {ext}: {e}")
+    #                 self.conn.rollback()
+    #                 raise
 
-    def _create_tables(self):
-        """Initialize database schema"""
-        with self.conn.cursor() as cur:
-            # Main nutrients table
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS food_nutrients (
-                    id SERIAL PRIMARY KEY,
-                    food_name TEXT NOT NULL,
-                    description TEXT,
-                    nutrients JSONB NOT NULL,
-                    embedding VECTOR(384),
-                    source VARCHAR(50),
-                    last_updated TIMESTAMP DEFAULT NOW()
-                );
-            """)
+    # def _create_tables(self):
+    #     """Initialize database schema"""
+    #     with self.conn.cursor() as cur:
+    #         # Main nutrients table
+    #         cur.execute("""
+    #             CREATE TABLE IF NOT EXISTS food_nutrients (
+    #                 id SERIAL PRIMARY KEY,
+    #                 food_name TEXT NOT NULL,
+    #                 description TEXT,
+    #                 nutrients JSONB NOT NULL,
+    #                 embedding VECTOR(384),
+    #                 source VARCHAR(50),
+    #                 last_updated TIMESTAMP DEFAULT NOW()
+    #             );
+    #         """)
             
-            # Ingredients mapping table
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS ingredient_mapping (
-                    id SERIAL PRIMARY KEY,
-                    canonical_name TEXT NOT NULL,
-                    variants TEXT[],
-                    category VARCHAR(50)
-                );
-            """)
+    #         # Ingredients mapping table
+    #         cur.execute("""
+    #             CREATE TABLE IF NOT EXISTS ingredient_mapping (
+    #                 id SERIAL PRIMARY KEY,
+    #                 canonical_name TEXT NOT NULL,
+    #                 variants TEXT[],
+    #                 category VARCHAR(50)
+    #             );
+    #         """)
             
-            # User profiles table
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS user_profiles (
-                    user_id VARCHAR(50) PRIMARY KEY,
-                    nutrients JSONB,
-                    last_updated TIMESTAMP DEFAULT NOW()
-                );
-            """)
+    #         # User profiles table
+    #         cur.execute("""
+    #             CREATE TABLE IF NOT EXISTS user_profiles (
+    #                 user_id VARCHAR(50) PRIMARY KEY,
+    #                 nutrients JSONB,
+    #                 last_updated TIMESTAMP DEFAULT NOW()
+    #             );
+    #         """)
             
-            # Create indexes
-            cur.execute("""
-                CREATE INDEX IF NOT EXISTS idx_food_name_trgm 
-                ON food_nutrients USING GIN (food_name gin_trgm_ops);
-            """)
-            self.conn.commit()
+    #         # Create indexes
+    #         cur.execute("""
+    #             CREATE INDEX IF NOT EXISTS idx_food_name_trgm 
+    #             ON food_nutrients USING GIN (food_name gin_trgm_ops);
+    #         """)
+    #         self.conn.commit()
 
     def _prepare_similarity_search(self):
         """Prepare similarity search functions"""

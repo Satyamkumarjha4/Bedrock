@@ -12,15 +12,20 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import UserDefinedType
 
+# Declare the SQLAlchemy base
 Base = declarative_base()
 
-# ✅ Define custom Vector type for pgvector
+# -----------------------------------
+# ✅ Define PostgreSQL pgvector type
+# -----------------------------------
 class Vector(UserDefinedType):
     def get_col_spec(self):
-        return "vector(384)"  # Dimension can be 384 or 768 depending on your embedding model
+        return "vector(384)"  # Match dimension with your SentenceTransformer model
 
 
-# ---------- 1. Main nutrients table ----------
+# -------------------------------------------------
+# 1. 🍽️ FoodNutrient: main nutrient + embedding table
+# -------------------------------------------------
 class FoodNutrient(Base):
     __tablename__ = "food_nutrients"
 
@@ -28,22 +33,26 @@ class FoodNutrient(Base):
     food_name = Column(Text, nullable=False)
     description = Column(Text)
     nutrients = Column(JSON, nullable=False)
-    embedding = Column(Vector)  # ✅ custom Vector type
+    embedding = Column(Vector)  # 🔥 pgvector embedding (dim=384)
     source = Column(String(50))
     last_updated = Column(TIMESTAMP, server_default=func.now())
 
 
-# ---------- 2. Ingredient mapping ----------
+# --------------------------------------------------
+# 2. 🧂 IngredientMapping: maps variants to canonical name
+# --------------------------------------------------
 class IngredientMapping(Base):
     __tablename__ = "ingredient_mapping"
 
     id = Column(Integer, primary_key=True)
     canonical_name = Column(Text, nullable=False)
-    variants = Column(ARRAY(Text))  # ✅ PostgreSQL-specific
+    variants = Column(ARRAY(Text))  # 🧠 PostgreSQL array type
     category = Column(String(50))
 
 
-# ---------- 3. User profile preferences ----------
+# --------------------------------------------------
+# 3. 👤 UserProfile: stores per-user preferences or history
+# --------------------------------------------------
 class UserProfile(Base):
     __tablename__ = "user_profiles"
 
@@ -52,7 +61,9 @@ class UserProfile(Base):
     last_updated = Column(TIMESTAMP, server_default=func.now())
 
 
-# ---------- 4. Basic food item table ----------
+# --------------------------------------------------
+# 4. 🧾 FoodItem: stores basic macro info (not embedded)
+# --------------------------------------------------
 class FoodItem(Base):
     __tablename__ = "food_items"
 
