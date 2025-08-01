@@ -25,6 +25,7 @@ class Vector(UserDefinedType):
 
 # -------------------------------------------------
 # 1. 🍽️ FoodNutrient: main nutrient + embedding table
+#     - used by ingest_food_data.py to insert embedded food records
 # -------------------------------------------------
 class FoodNutrient(Base):
     __tablename__ = "food_nutrients"
@@ -36,6 +37,9 @@ class FoodNutrient(Base):
     embedding = Column(Vector)  # 🔥 pgvector embedding (dim=384)
     source = Column(String(50))
     last_updated = Column(TIMESTAMP, server_default=func.now())
+
+    def __repr__(self):
+        return f"<FoodNutrient(id={self.id}, name={self.food_name})>"
 
 
 # --------------------------------------------------

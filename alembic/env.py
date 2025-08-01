@@ -4,20 +4,23 @@ from alembic import context
 import os
 import sys
 
-# ✅ 1. Add project root to path so models can be found
+# ✅ 1. Add project root to path so models and utils can be discovered
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# ✅ 2. Import your SQLAlchemy Base
-from models import Base  # make sure this is the correct relative import
+# ✅ 2. Import SQLAlchemy Base (core models)
+from models import Base
 
-# 🔧 3. Alembic Config object (from alembic.ini)
+# ✅ 3. (Optional future-proofing) Import VectorDBUtils if needed
+# from vcare_ai.utils.vectorDB_utils import VectorDBUtils  # Uncomment only if needed later
+
+# 🔧 4. Alembic Config object (from alembic.ini)
 config = context.config
 
-# ✅ 4. Optional: Configure logging
+# 📜 5. Configure logging
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# ✅ 5. Provide metadata for autogenerate support
+# 🔁 6. Set metadata for autogenerate (used during `alembic revision --autogenerate`)
 target_metadata = Base.metadata
 
 
@@ -46,22 +49,22 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        # ✅ 6. Ensure PostgreSQL extensions are available before migrations
+        # ✅ 7. Ensure PostgreSQL extensions required by pgvector & pg_trgm are present
         connection.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
         connection.execute(text("CREATE EXTENSION IF NOT EXISTS pg_trgm;"))
 
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
-            compare_type=True,       # ✅ detect column type changes (e.g., JSON, pgvector)
-            render_as_batch=False    # ✅ True only for SQLite; keep False for PostgreSQL
+            compare_type=True,
+            render_as_batch=False,  # ✅ Only needed for SQLite
         )
 
         with context.begin_transaction():
             context.run_migrations()
 
 
-# ✅ 7. Main trigger
+# ✅ 8. Execute migration in correct mode
 if context.is_offline_mode():
     run_migrations_offline()
 else:
